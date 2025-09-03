@@ -8,7 +8,10 @@ import com.app.dialy_cafe.repository.UserRepository;
 import com.app.dialy_cafe.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +21,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
+
+    @Autowired
+    public void UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public Users findByName(String name) {
+        return userRepository.findByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     @Override
     public BaseResponse<?> register(UserRequest req) {
@@ -132,5 +144,10 @@ public class UserServiceImpl implements UserService {
                         .email(u.getEmail())
                         .address(u.getAddress())
                 ).build();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String userName) {
+        return null;
     }
 }

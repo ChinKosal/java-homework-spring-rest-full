@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 @Entity
@@ -25,8 +30,14 @@ public class Users {
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
+    @Column(nullable = false)
+    private String password;
+
     @Column(name = "address", length = 512)
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     @Column(name = "status")
     private Boolean status = true;
@@ -39,17 +50,26 @@ public class Users {
     @LastModifiedDate
     private Date updatedDate;
 
-    public Users(Long id, String name, String phone, String email, String address) {
+    public Users(Long id, String name, String phone, String email, String password, String address) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.email = email;
+        this.password = password;
         this.address = address;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
     public String toString() {
         return "User{id=" + id + ", name='" + name + "', phone='" + phone + "', email='" + email +
                 "', address='" + address + "' createdAt=" + createdDate + "}";
+    }
+
+    public enum Role {
+        USER, ADMIN
     }
 }
